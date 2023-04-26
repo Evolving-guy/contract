@@ -1,0 +1,39 @@
+pragma solidity ^0.5.0;
+
+contract Voting {
+    struct Voter {
+        bool voted;
+        uint vote;
+    }
+
+    struct Proposal {
+        uint voteCount;
+    }
+
+    address public chairperson;
+    mapping(address => Voter) public voters;
+    Proposal[] public proposals;
+
+    constructor(uint numProposals) public {
+        chairperson = msg.sender;
+        proposals.length = numProposals;
+    }
+
+    function vote(uint proposal) public {
+        Voter storage sender = voters[msg.sender];
+        require(!sender.voted, "Already voted.");
+        sender.voted = true;
+        sender.vote = proposal;
+        proposals[proposal].voteCount += 1;
+    }
+
+    function winningProposal() public view returns (uint winningProposal_) {
+        uint winningVoteCount = 0;
+        for (uint p = 0; p < proposals.length; p++) {
+            if (proposals[p].voteCount > winningVoteCount) {
+                winningVoteCount = proposals[p].voteCount;
+                winningProposal_ = p;
+            }
+        }
+    }
+}
